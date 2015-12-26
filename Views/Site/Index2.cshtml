@@ -1,0 +1,115 @@
+﻿<br/>
+<div class="container">
+    <div class="form-horizontal">
+        <div class="form-group has-feedback">
+
+            <div class="btn-group">
+                <input id="pac-input" class="form-control" type="search" placeholder="Search site">
+                <span id="searchclear" class="glyphicon glyphicon-remove-circle"></span>
+               
+            </div><div id="suggesstion-box"></div>
+            @*<div class="btn-group">
+                <input id="searchinput" type="search" class="form-control">
+                <span id="searchclear" class="glyphicon glyphicon-remove-circle"></span>
+            </div>*@
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/jquery.isloading.min.js"></script>
+<style>
+    .ui-autocomplete-loading {
+        background: white url("http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/images/ui-anim_basic_16x16.gif") right center no-repeat;
+    }
+
+    #pac-input {
+        width: 300px;
+    }
+    #searchclear {
+        position: absolute;
+        right: 5px;
+        top: 0;
+        bottom: 0;
+        height: 14px;
+        margin: auto;
+        font-size: 14px;
+        cursor: pointer;
+        color: #ccc;
+    }
+  
+</style>
+
+<script>
+    function ShortName(shortName) {
+        switch (shortName) {
+            case "QUEENSLAND":
+                return "QLD";
+            case "NEW SOUTH WALES":
+                return "NSW";
+            case "AUSTRALIAN CAPITAL TERRITORY":
+                return "ACT";
+            case "VICTORIA":
+                return "VIC";
+            case "TASMANIA":
+                return "TAS";
+            case "NORTHERN TERRITORY":
+                return "NT";
+            case "SOUTH AUSTRALIA":
+                return "SA";
+            case "WESTERN AUSTRALIA":
+                return "WA";
+
+            default: return "";
+        }
+    }
+
+    $("#pac-input").autocomplete({
+
+        source: function (request, response) {
+            //$.get('./site/search/', { key: request.term }, function (data) {
+            //    response(data.split('\n'));
+            //});
+            $.ajax({
+                url: './site/search/' + $("#pac-input").val(),
+                type: 'GET',
+                cache: false,
+                data: request,
+                dataType: 'json',
+                success: function (json) {
+
+                    //console.log(json);
+                    items = JSON.parse(json);
+                    // return { label: items.Name, value:items.Name }
+                    // call autocomplete callback method with results
+                    response($.map(items.Results, function (name, val) {
+                        //return val
+                        console.log(name + " " + val);
+                        if (val > 7) return
+                        return {
+                            label: name.SITESUBURB + " (" + name.OWNER + "), " + ShortName(name.STATE),
+                            value: name.Name,
+                            id: name.id,
+                            latlng: [name.geometry.coordinates[1], name.geometry.coordinates[0]]
+                        }
+
+                    }));
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    //alert('error - ' + textStatus);
+                    console.log('error', textStatus, errorThrown);
+                }
+            });
+        },
+        minLength: 2,
+        select: function (event, ui) {
+            $(this).isLoading({ text: "Loading", position: "inside" });
+            window.location = './site/details/'+ui.item.id;
+            //LatlngSearch(ui.item.latlng[0], ui.item.latlng[1], 5, true);
+        }
+    });
+
+    $("#searchclear").click(function () {
+        $("#pac-input").val('');
+    });
+
+</script>

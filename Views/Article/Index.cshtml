@@ -1,0 +1,104 @@
+﻿@model IEnumerable<FGapp.Models.Article>
+
+@{
+    ViewBag.Title = "Article";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+}
+
+@if (Request.IsAuthenticated && User.IsInRole("Admin"))
+{
+    <p>
+        @Html.ActionLink("Create New", "Create")
+    </p>
+}
+<!--  Blog Section
+    ================================================== -->
+<div id="tf-blog">
+    <div class="container">
+        <!-- container -->
+        <div class="section-header">
+            <h2>Latest <span class="highlight"><strong>News</strong></span></h2>
+            <h5><em></em></h5>
+        </div>
+    </div>
+
+    <div id="blog-post" class="gray-bg">
+        <!-- fullwidth gray background -->
+        @if (Request.IsAuthenticated && User.IsInRole("Admin"))
+            {
+            <span class="pull-right">
+                [ @Html.ActionLink("New Post", "Create") ]
+            </span>
+        }
+        <div class="container">
+            <!-- container -->
+            <div class="row">
+                @{
+                    Random rnd = new Random();
+                    int count = 0;
+                    foreach (var item in Model)
+                    {
+
+
+                            <!-- row -->
+                        <div class="col-md-6">
+                            <!-- Left content col 6 -->
+
+
+                            <div class="post-wrap">
+                                <!-- Post Wrapper -->
+                                <div class="media post">
+                                    <!-- post wrap -->
+                                    <div class="media-left">
+                                        <a href="#">
+                                            <!-- link to your post single page -->
+                                            <img class="media-object" src="http://placehold.it/120x150" alt="..."> <!-- Your Post Image -->
+                                        </a>
+                                    </div>
+                                    <div class="media-body">
+                                        <p class="small">@Html.DisplayFor(modelItem => item.PublishedDate)</p>
+                                        <a target="_blank" href="@Html.Raw(item.URL)">
+                                            <h5 class="media-heading"><strong>@Html.DisplayFor(modelItem => item.Title)</strong></h5>
+                                        </a>
+                                        <p>@Html.DisplayFor(modelItem => item.Abstract)</p>
+                                    </div>
+                                </div><!-- end post wrap -->
+
+                                <div class="post-meta">
+                                    <!-- Meta details -->
+                                    <ul class="list-inline metas pull-left">
+                                        <!-- post metas -->
+                                        <li><a href="#">by Robert</a></li><!-- meta author -->
+                                        <!-- <li><a href="#">20 Comments</a></li> meta comments -->
+                                        <li><a target="_blank" href="@Html.Raw(item.URL)">Read More</a></li> <!-- read more link -->
+                                    </ul>
+                                    <ul class="list-inline meta-detail pull-right">
+                                        <!-- user meta interaction -->
+                                        <li><a href="#"><i class="fa fa-heart"></i></a> @rnd.Next(1, 100)</li> <!-- like button -->
+                                        <li><i class="fa fa-eye"></i> @rnd.Next(100, 400)</li> <!-- no. of views -->
+                                    </ul>
+
+                                    @if (Request.IsAuthenticated && User.IsInRole("Admin"))
+                                    {
+                                        <ul class="list-inline meta-detail">
+                                            <li>[
+                                                @Html.ActionLink("Edit Post", "Edit", new { id = item.Id }) ]
+                                            </li>
+                                        </ul>
+                                    }
+
+                                </div><!-- end Meta details -->
+                            </div><!-- end Post Wrapper -->
+                        </div>
+
+
+                    }
+
+
+                    count = count + 1;
+
+                }
+            </div>
+        </div>
+    </div>
+</div>

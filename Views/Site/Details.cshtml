@@ -1,0 +1,348 @@
+﻿@model  FGapp.Models.SiteProduct
+
+@{
+    ViewBag.Title = Model.SiteName;
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+}
+<script src="http://maps.google.com/maps/api/js?sensor=true"></script>
+<script src="http://hpneo.github.io/gmaps/gmaps.js"></script>
+<style>
+    .panel {
+        position: relative;
+    }
+
+    .panel-default > .panel-leftheading {
+        color: #333;
+        background-color: #f5f5f5;
+        border-color: #ddd;
+    }
+
+    .panel-primary > .panel-leftheading {
+        color: #fff;
+        background-color: #428bca;
+        border-color: #428bca;
+    }
+
+    .panel-success > .panel-leftheading {
+        color: #3c763d;
+        background-color: #dff0d8;
+        border-color: #d6e9c6;
+    }
+
+    .panel-info > .panel-leftheading {
+        color: #31708f;
+        background-color: #d9edf7;
+        border-color: #bce8f1;
+    }
+
+    .panel-warning > .panel-leftheading {
+        color: #8a6d3b;
+        background-color: #fcf8e3;
+        border-color: #faebcc;
+    }
+
+    .panel-danger > .panel-leftheading {
+        color: #a94442;
+        background-color: #f2dede;
+        border-color: #ebccd1;
+    }
+
+    .panel-leftheading {
+        width: 42px;
+        padding: 10px 15px;
+        border-right: 1px solid transparent;
+        border-bottom: 1px solid transparent;
+        border-top-right-radius: 3px;
+        border-bottom-left-radius: 3px;
+        border-bottom-right-radius: 3px;
+        float: left;
+        height: 100%;
+        position: absolute;
+    }
+
+    .panel-lefttitle {
+        margin-top: 0;
+        margin-bottom: 0;
+        margin-left: 15px;
+        font-size: 16px;
+        color: inherit;
+        -webkit-transform: rotate(90deg);
+        -webkit-transform-origin: left top;
+        -moz-transform: rotate(90deg);
+        -moz-transform-origin: left top;
+        -ms-transform: rotate(90deg);
+        -ms-transform-origin: left top;
+        -o-transform: rotate(90deg);
+        -o-transform-origin: left top;
+        transform: rotate(90deg);
+        transform-origin: left top;
+        position: absolute;
+        white-space: nowrap;
+    }
+
+    .panel-rightbody {
+        float: left;
+        margin-left: 45px;
+        padding: 15px;
+    }
+</style>
+
+<div id="tf-header">
+    <div class="container">
+        <!-- container -->
+        <h3>@ViewBag.siteName</h3>
+    </div><!-- end container -->
+</div>
+
+<!-- container -->
+<div id="tf-contact" class="contact">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="panel panel-primary">
+                    <div class="panel-leftheading">
+                        <h3 class="panel-lefttitle">Latest Price</h3>
+                    </div>
+                    <div class="panel-rightbody">
+                        @if (Request.IsAuthenticated && User.IsInRole("Admin")){
+
+                     <a class="pull-right" href='../../site/@Html.Raw("bulk?lat="+ViewBag.Lat+"&lng="+ ViewBag.Lng)'>[Bulk Insert]</a>
+                        }
+                        <div>
+                            <ul>
+                                <li class="col-md-8">
+                                    <a href="../../price/create/E10/@Model.SiteId">@Html.DisplayNameFor(x => x.BioE10Unleaded)</a>
+                                    <span class="badge pull-right">@Html.DisplayFor(x => x.BioE10Unleaded.FirstOrDefault(model => model.Total > 0).Total)</span>
+                                </li>
+                                <li class="col-md-8">
+                                    <a href="../../price/create/ULP/@Model.SiteId">@Html.DisplayNameFor(x => x.Unleaded91)</a>
+                                    <span class="badge pull-right">@Html.DisplayFor(x => x.Unleaded91.FirstOrDefault(model => model.Total > 0).Total)</span>
+                                </li>
+                                <li class="col-md-8">
+                                    <a href="../../price/create/PULP95/@Model.SiteId">@Html.DisplayNameFor(x => x.PremiumUnleaded95)</a>
+                                    <span class="badge pull-right">@Html.DisplayFor(x => x.PremiumUnleaded95.FirstOrDefault(model => model.Total > 0).Total)</span>
+                                </li>
+                                <li class="col-md-8">
+                                    <a href="../../price/create/PULP98/@Model.SiteId">@Html.DisplayNameFor(x => x.PremiumUnleaded98)</a>
+                                    <span class="badge pull-right">@Html.DisplayFor(x => x.PremiumUnleaded98.FirstOrDefault(model => model.Total > 0).Total)</span>
+                                </li>
+                                <li class="col-md-8">
+                                    <a href="../../price/create/DSL/@Model.SiteId">@Html.DisplayNameFor(x => x.Diesel)</a>
+                                    <span class="badge pull-right">@Html.DisplayFor(x => x.Diesel.FirstOrDefault(model => model.Total > 0).Total)</span>
+                                </li>
+                                <li class="col-md-8">
+                                    <a href="../../price/create/LPG/@Model.SiteId">@Html.DisplayNameFor(x => x.Gas)</a>
+                                    <span class="badge pull-right">@Html.DisplayFor(x => x.Gas.FirstOrDefault(model => model.Total > 0).Total)</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="clearfix">
+                    </div>
+                </div>
+
+                <div class="panel panel-default">
+                    <div class="panel-leftheading">
+                        <h3 class="panel-lefttitle">Price Chart</h3>
+                    </div>
+                    <div class="panel-rightbody">
+                        <div id="placeholder" style="width:450px;height:300px"></div>
+
+                    </div>
+                    <div class="clearfix">
+                    </div>
+                </div>
+                <div class="clearfix">
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="panel panel-info">
+                    <div class="panel-leftheading">
+                        <h3 class="panel-lefttitle">Weather</h3>
+                    </div>
+                    <div class="text-center">
+                        <p id="weatherDiv"></p>
+                    </div>
+                    <div class="clearfix">
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-leftheading">
+                        <h3 class="panel-lefttitle">Street Map</h3>
+                    </div>
+                    <div class="panel-rightbody">
+                        <div id="panorama" style="width:400px; height:300px"></div>
+                    </div>
+                    <div class="clearfix">
+                    </div>
+                </div>
+
+            </div>
+
+
+          
+            <script language="javascript" type="text/javascript" src="http://www.flotcharts.org/flot/jquery.flot.js"></script>
+            <script language="javascript" type="text/javascript" src="http://www.flotcharts.org/flot/jquery.flot.time.js"></script>
+
+            <script type="text/javascript">
+
+                $(function() {
+
+                    var d1_pulp98 = @Html.Raw(Json.Encode(Model.PremiumUnleaded98));
+                    var d1 = [];
+                    for (var i = 0; i < d1_pulp98.length; i ++) {
+                        d1.push([d1_pulp98[i]["SubmittedEpoch"]*1000, d1_pulp98[i]["Total"]]);
+                    }
+
+                    var d2_lpg = @Html.Raw(Json.Encode(Model.Gas));
+                    var d2 = [];
+                    for (var i = 0; i < d2_lpg.length; i ++) {
+                        d2.push([d2_lpg[i]["SubmittedEpoch"]*1000, d2_lpg[i]["Total"]]);
+                    }
+
+                    var d3_ulp = @Html.Raw(Json.Encode(Model.Unleaded91));
+                    var d3 = [];
+                    for (var i = 0; i < d3_ulp.length; i ++) {
+                        d3.push([d3_ulp[i]["SubmittedEpoch"]*1000, d3_ulp[i]["Total"]]);
+                    }
+
+                    var d4_pulp95 = @Html.Raw(Json.Encode(Model.PremiumUnleaded95));
+                    var d4 = [];
+                    for (var i = 0; i < d4_pulp95.length; i ++) {
+                        d4.push([d4_pulp95[i]["SubmittedEpoch"]*1000, d4_pulp95[i]["Total"]]);
+                    }
+
+                    var d5_e10 = @Html.Raw(Json.Encode(Model.BioE10Unleaded));
+                    var d5 = [];
+                    for (var i = 0; i < d5_e10.length; i ++) {
+                        d5.push([d5_e10[i]["SubmittedEpoch"]*1000, d5_e10[i]["Total"]]);
+                    }
+
+                    var d6_diesel = @Html.Raw(Json.Encode(Model.Diesel));
+                    var d6 = [];
+                    for (var i = 0; i < d6_diesel.length; i ++) {
+                        d6.push([d6_diesel[i]["SubmittedEpoch"]*1000, d6_diesel[i]["Total"]]);
+                    }
+
+
+                    //var d2 = [[0, 3], [4, 8], [8, 5], [9, 13]];
+
+                    //var d3 = [];
+                    //for (var i = 0; i < 14; i += 0.5) {
+                    //	d3.push([i, Math.cos(i)]);
+                    //}
+
+
+
+                    $.plot($('#placeholder') ,[{
+                        label: "PremiumUnleaded98",
+                        data: d1,
+                        color: "#1693A5",
+                        lines: { show: true, steps: false },
+                        points: { show: true }
+                    },
+
+                    {
+                        label: "LPG",
+                        data: d2,
+                        color: "#ADD8C7",
+                        lines: { show: true, steps: false },
+                        points: { show: true }
+                    },
+            {
+                label: "Unleaded91",
+                data: d3,
+                color: "#FBB829",
+                lines: { show: true, steps: false },
+                points: { show: true }
+            },
+            {
+                label: "PremiumUnleaded95",
+                data: d4,
+                color: "#FF0066",
+                lines: { show: true, steps: false },
+                points: { show: true }
+            },
+            {
+                label: "E10",
+                data: d5,
+                color: "#CDD7B6",
+                lines: { show: true, steps: false },
+                points: { show: true }
+            },
+            {
+                label: "Diesel",
+                data: d6,
+                color: "#556270",
+                lines: { show: true, steps: false },
+                points: { show: true }
+            },
+
+                    ],
+                    {
+                        grid: { hoverable: true, clickable: true },
+                        xaxis: { mode: "time", timeformat: "%d/%m/%y %H:%M",ticksize: [4, 'hour'] }
+                    }
+                );
+                    function gd(year, month,day,hours,min,sec) {
+                        return new Date(year, month-1, day,hours,min,sec);
+                    }
+                    /*
+                $.plot("#placeholder", [{
+                    data: d1,
+                    lines: { show: true, fill: true },
+                    xaxis: { mode: "time", timezone: "local" },
+                    yaxes: [ { min: 0 },
+                             {
+                                 // align if we are to the right
+                                 alignTicksWithAxis: "right",
+                                 position: "right",
+                                 min :0,
+                                 max:2.5
+                             } ],
+                }//, {
+                //	data: d2,
+                //	bars: { show: true }
+                //}, {
+                //	data:
+                */
+
+                });
+
+                function WeatherSearch(suburb) {
+                    var xhr = $.getJSON('../weather/'+suburb)
+                        .done(function (data) {
+                            if(!data){
+                                var node = '<img src="'+data.current.condition.icon+'" alt="'+data.current.condition.text+'"/><br />' +
+                                data.current.temp_c +'ºC <br />'+
+                                '<h6>(updated '+ data.current.last_updated +' '+ data.location.tz_id+')</h6>';
+                                $('#weatherDiv').html(node);
+                            }else
+                                $('#weatherDiv').html("<p style='height: 60px;'><br/>Unavailable<br/></p>")
+                        })
+                        .fail(function (jqxhr, textStatus, error) {
+                            var err = textStatus + ", " + error;
+                            console.log("Request Failed: " + err);
+                        });
+                }
+
+                $(document).ready(function(){
+                    //prettyPrint();
+                    panorama = GMaps.createPanorama({
+                        el: '#panorama',
+                        lat : @ViewBag.Lat,//42.3455,
+                        lng : @ViewBag.Lng//-71.0983
+                        });
+                    WeatherSearch('@ViewBag.Suburb');
+                });
+            </script>
+
+            <br />
+            @*@Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |*@
+            
+            
+        </div>
+        <div class="row">@Html.ActionLink("Back to List", "Index")</div>
+        </div>
+</div>

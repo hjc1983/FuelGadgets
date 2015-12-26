@@ -1,0 +1,117 @@
+﻿@{
+    ViewBag.Title = "About";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+}
+
+<style>
+
+    .team {
+      width: 100%;
+      margin: 25px auto;
+    }
+
+    .team ul {
+      padding: 0;
+      text-align: center;
+      margin-right:-15px;
+    }
+
+    .team .member {
+      display: inline-block;
+      list-style-type: none;
+      padding-right: 35px;
+      padding-bottom: 20px;
+      vertical-align: top;
+      font-size: 12px;
+      max-width: 143px;
+      line-height: 1;
+    }
+
+    .team .member .name {
+      font-weight: 600;
+      padding: 5px 0 0;
+    }
+
+    .team .member img {
+      border-radius: 5px;
+      display: inline;
+      list-style-type: none;
+    }
+
+
+</style>
+
+
+<!-- Page Header
+    ================================================== -->
+<div id="tf-header">
+    <div class="container">
+        <!-- container -->
+        <h1>About</h1>
+        @*<ol class="breadcrumb">
+                <li><a href="../">Home</a></li>
+                <li><a class="active">About</a></li>
+            </ol>*@
+    </div><!-- end container -->
+</div>
+
+<!-- container -->
+<div id="tf-contact" class="contact">
+    <div class="container">
+
+        <div>
+            <p>
+                Most of drives has experienced driving around and had to fill up their tank.
+                Some of you might be wondering should I fill up right here right now?
+            </p>
+
+            <p>
+                Petrol pricing is highly complex and opaque, and drivers often don't have the information
+                they need to get the best deals on fuels.
+            </p>
+
+            <p>
+                @@app is a crowd-sourcing platform enable both consumers and operators to update fuel prices.
+                this provides insightful, data-driven research to help consumers make better decisions about
+                where to go and when to fill up and buy; as well as for operators to efficiently compete in petrol markets.
+            </p>
+
+            <p>
+                This is a personal project where I believe will assist on bring transparency
+                into the fuel industry in specifically the Australian market.
+                All stations information were <a href="data.gov.au">public data</a>,
+                please contact <a href="mailto:hjc1983@gmail.com">me</a> if the information displayed were incorrect or inappropriate.
+            </p>
+
+        </div>
+
+        <br />
+        <div class="team">
+            <h3>Our Team</h3>
+            <ul>
+                <li class="member">
+                    <div class="image">
+                        <img src="~/images/you.jpg" />
+                    </div>
+                    <div class="name">
+                        I want you !
+                    </div>
+                    <div class="job-title">
+                        :)
+                    </div>
+                </li>
+                <li class="member">
+                    <div class="image">
+                        <img src="~/images/rc.jpg" />
+                    </div>
+                    <div class="name">
+                        <a href="mailto:hjc1983@gmail.com">Robert Chiu</a>
+                    </div>
+                    <div class="job-title">
+                        Developer
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

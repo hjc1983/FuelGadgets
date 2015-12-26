@@ -1,0 +1,313 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+    ViewBag.Title = "Home Page";
+}
+
+<script src="http://maps.googleapis.com/maps/api/js"></script>
+<style>
+    .ui-autocomplete-loading {
+        background: white url("http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/images/ui-anim_basic_16x16.gif") right center no-repeat;
+    }
+</style>
+
+<!-- Page Header
+    ================================================== -->
+<div id="tf-header">
+    <div class="container">
+        <!-- container -->
+        <h1>Map Search</h1>
+        <h5><em>Start seaching with a touch on the map...</em></h5>
+    </div><!-- end container -->
+</div>
+
+<!-- container -->
+<div id="tf-contact" class="contact">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+
+                <!-- "col-xs-6"> -->
+                <div class="frmSearch">
+                    <input id="pac-input" class="controls" type="text" placeholder="Search stations">
+                    <div id="suggesstion-box"></div>
+                    <select id="dropdown">
+                        <option value="#">Select one...</option>
+                        <option value="QLD">QLD</option>
+                        <option value="NSW">NSW</option>
+                        <option value="ACT">ACT</option>
+                        <option value="VIC">VIC</option>
+                        <option value="TAS">TAS</option>
+                        <option value="NT">NT</option>
+                        <option value="SA">SA</option>
+                        <option value="WA">WA</option>
+                    </select>
+                </div>
+                <div id="googleMap" style="width:100%;height:380px;"></div>
+            </div>
+            <div class="col-md-4">
+                <div id="results"></div>
+                <div class="panel-group" id="accordion" style="height:400px; overflow-y: scroll"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var map;
+    var bounds = new google.maps.LatLngBounds();
+    var myCenter = new google.maps.LatLng(-33.890, 151.274);
+    var markers = [];
+    var activeWindow;
+    var keywordSearch = false;
+
+    var QLD = new google.maps.LatLng(-26.0000, 149.0000);
+    var NSW = new google.maps.LatLng(-32.1617, 147.0178);
+    var ACT = new google.maps.LatLng(-35.3075, 149.1244);
+    var VIC = new google.maps.LatLng(-37.0000, 144.0000);
+    var TAS = new google.maps.LatLng(-42.0000, 147.0000);
+    var NT = new google.maps.LatLng(-20.0000, 133.0000);
+    var SA = new google.maps.LatLng(-32.0000, 135.0000);
+    var WA = new google.maps.LatLng(-29.0000, 121.0000);
+
+    function initialize(lat, lng) {
+
+        if (lat && lng) {
+            myCenter = new google.maps.LatLng(lat, lng);
+        }
+        /* ensure any open panels are closed before showing selected */
+        $('#accordion').on('show.bs.collapse', function () {
+            $('#accordion .in').collapse('hide');
+        });
+
+        map = new google.maps.Map(document.getElementById("googleMap"), {
+            center: myCenter,
+            zoom: 13,
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            mapTypeControl: false
+        });
+
+        // Create the search box and link it to the UI element.
+        var input = document.getElementById('pac-input');
+        //var searchBox = new google.maps.places.SearchBox(input);
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+        var dropdown = document.getElementById('dropdown');
+        map.controls[google.maps.ControlPosition.TOP_RIGHT].push(dropdown);
+
+        $("#pac-input").autocomplete({
+
+            source: function (request, response) {
+
+                $.ajax({
+                    url: './site/search/' + $("#pac-input").val(),
+                    type: 'GET',
+                    cache: false,
+                    data: request,
+                    dataType: 'json',
+                    success: function (json) {
+
+                        //console.log(json);
+                        items = JSON.parse(json);
+                        response($.map(items.Results, function (name, val) {
+                            if (val > 7) return
+                            return {
+                                label: name.SITESUBURB + " (" + name.OWNER + "), " + ShortName(name.STATE),
+                                value: name.Name,
+                                id: name.id,
+                                latlng: [name.geometry.coordinates[1], name.geometry.coordinates[0]]
+                            }
+
+                        }));
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        console.log('error', textStatus, errorThrown);
+                    }
+                });
+            },
+            minLength: 2,
+            select: function (event, ui) {
+                console.log('select dropdown');
+                LatlngSearch(ui.item.latlng[0], ui.item.latlng[1], 5, true);
+            }
+        });
+
+
+        google.maps.event.addListener(map, 'mouseup', function (event) {//zoom_changed, idle
+            LatlngSearch(event.latLng.lat(), event.latLng.lng(), 15, false);
+        });
+
+        google.maps.event.addListenerOnce(map, 'tilesloaded', function () {
+            if (lat && lng) {
+                LatlngSearch(lat, lng, 5, false);
+            }
+        });
+
+    }
+
+    $(document).on('click', '.pan-to-marker', function (e) {
+        e.preventDefault();
+
+        var position, lat, lng, $index;
+
+        $index = $(this).data('marker-index');
+
+        position = markers[$index].getPosition();
+
+        lat = position.lat();
+        lng = position.lng();
+        map.setCenter({ lat, lng });
+
+    });
+
+    function ShortName(shortName) {
+        switch (shortName) {
+            case "QUEENSLAND":
+                return "QLD";
+            case "NEW SOUTH WALES":
+                return "NSW";
+            case "AUSTRALIAN CAPITAL TERRITORY":
+                return "ACT";
+            case "VICTORIA":
+                return "VIC";
+            case "TASMANIA":
+                return "TAS";
+            case "NORTHERN TERRITORY":
+                return "NT";
+            case "SOUTH AUSTRALIA":
+                return "SA";
+            case "WESTERN AUSTRALIA":
+                return "WA";
+
+            default: return "";
+        }
+    }
+
+    // The function to trigger the marker click, 'id' is the reference index to the 'markers' array.
+    function myClick(id) {
+        //map.event.trigger(markers[id], 'click');
+        google.maps.event.trigger(markers[id - 1], 'click');
+    }
+
+    function DeleteMarkers() {
+        $('#results').html('');
+        $('#accordion').html('');
+        //Loop through all the markers and remove
+        for (var i = 0; i < markers.length; i++) {
+            this.markers[i].setMap(null);
+            //markers[i].setAnimation(null);
+        }
+        this.markers = new Array();
+
+    };
+
+    function LatlngSearch(lat, lng, distance, isKeyword) {
+        var xhr = $.getJSON('./site/search/location/' + lat + '/' + lng + '/?distance=' + distance)
+            .done(function (data) {
+                keywordSearch = isKeyword;
+                MarkOnMap(data);
+            })
+            .fail(function (jqxhr, textStatus, error) {
+                var err = textStatus + ", " + error;
+                console.log("Request Failed: " + err);
+            });
+    }
+
+    function PriceBoard(p) {
+
+        return p > 0.01 ? p : "-";
+    }
+
+    function MarkOnMap(items) {
+        //reset
+        //DeleteMarkers();
+
+        items = JSON.parse(items);
+
+        if (items.Count > 0) {
+            $.each(items.Results, function (i, item) {
+                var count = $('#accordion > div').size() + 1;
+
+                var myLatLng = new google.maps.LatLng(item.geometry.coordinates[1], item.geometry.coordinates[0]);
+
+                var checkExt = markers.some(function (el) {
+                    if (el.position.toString() === myLatLng.toString())
+                        return true;
+                    return false;
+                });
+                if (!checkExt) {
+                    var marker = new google.maps.Marker({
+                        infoId: count,
+                        animation: google.maps.Animation.DROP,
+                        title: item.Name,
+                        position: myLatLng, 
+                        map: map,
+                    });
+                    var infowindow = new google.maps.InfoWindow({
+                        content: "<h5><a target='_blank' href='./Site/Details/" + item.id + "'>" + item.Name + '</a></h5><br/>Ethanol E10: ' + PriceBoard(item.BioE10Unleaded) + '<br/>Unleaded 91: ' + PriceBoard(item.Unleaded91) + '<br/>Premium Unleaded 95: ' + PriceBoard(item.PremiumUnleaded95) + '<br/>Premium Unleaded 98: ' + PriceBoard(item.PremiumUnleaded98) + '<br/>Diesel: ' + PriceBoard(item.Diesel) + '<br/>LPG: ' + PriceBoard(item.LPG)
+                    });
+
+                    $('#accordion').append('<div class="panel panel-default"><div class="panel-heading"><h4 class="panel-title"><a data-toggle="collapse" id="infoId' + count + '" data-parent="#accordion" aria-expanded="false" class="collapsed" href="#collapse' + count + '" data-marker-index="' + count + '" onclick="myClick(' + count + ');return false;">' + marker.title + '</a></h4></div><div id="collapse' + count + '" class="panel-collapse collapse" aria-expanded="false"><div class="panel-body">' + item.SITEADDRESS + ', ' + item.SITESUBURB + '<br/><div class="pull-right"><h5><a target="_blank" href="./Site/Details/' + item.id + '">More...</a></h5></div></div></div>');
+
+                    //infowindow.open(map,marker);
+                    marker.addListener('click', function () {
+                        if (activeWindow != null)
+                            activeWindow.close();
+                        //Open new window
+                        infowindow.open(map, marker);
+
+                        var infoName = '#infoId' + count;
+                        var collapse = '#collapse' + count;
+                        $(infoName).focus();
+                        $(collapse).collapse('show');
+                        console.log('triggered ' + infoName);
+                        activeWindow = infowindow;
+
+                        //Bounce Animation on Marker for a limited period
+                        marker.setAnimation(google.maps.Animation.BOUNCE);
+                        setTimeout(function () {
+                            marker.setAnimation(null)
+                        }, 2000);
+                    });
+                    //Add marker to the array.
+
+                    markers.push(marker);
+                }
+
+                bounds.extend(myLatLng);
+
+            });
+            map.initialZoom = true;
+            if (keywordSearch) {
+                map.setZoom(13);
+                map.setCenter(markers[markers.length - 1].getPosition());//.getPosition()
+                //map.fitBounds(bounds);
+            }
+        } else { console.log("sorry no results found."); }
+    }
+
+    function reply_click(clicked_id) {
+        DeleteMarkers();
+        map.setCenter(this[clicked_id]);
+        map.setZoom(6);
+    }
+
+    $("#dropdown").change(function () {
+        var end = this.value;
+        $('#pac-input').val('');
+        reply_click(end);
+    });
+
+    //google.maps.event.addDomListener(window, 'load', initialize);
+    $(document).ready(function () {
+        initialize();
+        if (navigator.geolocation) {
+            //navigator.geolocation.watchPosition(currentPosition);
+            navigator.geolocation.getCurrentPosition(function showPosition(position) {
+                initialize(position.coords.latitude, position.coords.longitude);
+            });
+        } else {
+            alert('no support');
+            console.log("Geolocation is not supported by this browser.");
+        }
+    });
+
+</script>

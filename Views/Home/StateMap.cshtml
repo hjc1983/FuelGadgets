@@ -1,0 +1,288 @@
+﻿@model FGapp.Models.AS_SearchResponse
+
+@{
+    ViewBag.Title = "View";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<link href="~/Content/myapp.css" rel="stylesheet" />
+<script type="text/javascript">
+    $( document ).ready(function() {
+        // Handler for .ready() called.
+        var latest= @Html.Raw(ViewBag.dbSites);
+        var e10, ulp, pulp95, pulp98, dsl, lpg ="";
+        for(i=0; i<latest.length; i++){
+            //var current = latest[i];
+
+            if(latest[i].$1==="E10")
+                e10+="<li>"+latest[i].SiteName+" @@ "+latest[i].Prices[0].total+"</li>" ;
+            else if(latest[i].$1==="ULP")
+                ulp+="<li>"+latest[i].SiteName+" @@ "+ latest[i].Prices[0].total+"</li>";
+            else if(latest[i].$1==="PULP95")
+                pulp95+="<li>"+latest[i].SiteName+" @@ "+ latest[i].Prices[0].total+"</li>";
+            else if(latest[i].$1==="PULP98")
+                pulp98+="<li>"+latest[i].SiteName+" @@ "+ latest[i].Prices[0].total+"</li>";
+            else if(latest[i].$1==="DSL")
+                dsl+="<li>"+latest[i].SiteName+" @@ "+ latest[i].Prices[0].total+"</li>";
+            else if(latest[i].$1==="LPG")
+                lpg+="<li>"+latest[i].SiteName+" @@ "+ latest[i].Prices[0].total+"</li>";
+
+
+        }console.log(e10);
+        //$("#E10").html(e10);$("#ULP").text(ulp);
+        $("#E10 ul").append(e10);
+        $("#ULP ul").append(ulp);
+        $("#PULP95 ul").append(pulp95);
+        $("#PULP98 ul").append(pulp98);
+        $("#DSL ul").append(dsl);
+        $("#LPG ul").append(lpg);
+    });
+
+</script>
+
+
+
+<h2>@ViewBag.locationJur</h2>
+<div class="container">
+
+    <div class="col-xs-12">
+        <div class="carousel slide" id="myCarousel">
+            <div class="carousel-inner">
+                <div class="item active">
+                    <ul class="thumbnails">
+                        <li class="col-sm-4">
+                            <div class="fff" style="border:1px solid;">
+                                <div class="jumbotron" style="background:#4caf50 !important" >
+                                    <span style="position:absolute;margin-bottom:7px; margin:17px; right: 0;">E10</span>
+                                </div>
+                                <div id="E10"><ul></ul></div>
+                            </div>
+                        </li>
+                        <li class="col-sm-4">
+                            <div class="fff">
+                                <div class="jumbotron"  style="background:#ffc107 !important">
+                                    <span style="position:absolute; margin-bottom:7px; margin:17px; right: 0;">ULP</span>
+                                </div>
+                                <div id="ULP"><ul></ul></div>
+                            </div>
+                        </li>
+                        <li class="col-sm-4">
+                            <div class="fff">
+                                <div class="jumbotron" style="background:#3f51b5 !important" >
+                                    <span style="position:absolute; margin-bottom:7px; margin:17px; right: 0;">PULP95</span>
+                                </div>
+                                <div id="PULP95"><ul></ul></div>
+                            </div>
+                        </li>
+                    </ul>
+                </div><!-- /Slide1 -->
+                <div class="item">
+                    <ul class="thumbnails">
+                        <li class="col-sm-4">
+                            <div class="fff">
+                                <div class="jumbotron" style="background:#f44336 !important">
+                                    <span style="position:absolute; margin-bottom:7px; margin:17px; right: 0;">PULP98</span>
+                                </div>
+                                <div id="PULP98"><ul></ul></div>
+                            </div>
+                        </li>
+                        <li class="col-sm-4">
+                            <div class="fff">
+                                <div class="jumbotron" style="background:#727272 !important">
+                                    <span style="position:absolute; margin-bottom:7px; margin:17px; right: 0;">DSL</span>
+                                </div>
+                                <div id="DSL"><ul></ul></div>
+                            </div>
+                        </li>
+                        <li class="col-sm-4">
+                            <div class="fff">
+                                <div class="jumbotron" style="background:#BBDEFB !important">
+                                    <span style="position:absolute; margin-bottom:7px; margin:17px; right: 0;">LPG</span>
+                                </div>
+                                <div id="LPG"><ul></ul></div>
+                            </div>
+                        </li>
+                    </ul>
+                </div><!-- /Slide2 -->
+            </div>
+
+
+            <nav>
+                <ul class="control-box pager">
+                    <li><a data-slide="prev" href="#myCarousel" class=""><i class="glyphicon glyphicon-chevron-left"></i></a></li>
+                    <li><a data-slide="next" href="#myCarousel" class=""><i class="glyphicon glyphicon-chevron-right"></i></li>
+                </ul>
+            </nav>
+            <!-- /.control-box -->
+
+        </div><!-- /#myCarousel -->
+    </div>
+
+        <form action="./@ViewBag.state" method="get">
+            <input type="search" name="q" id="q" value="@ViewBag.searchString" autocomplete="off" size="100" /> <button type="submit">Search</button>
+            <input type="hidden" name="state" id="state" value="@ViewBag.state" />
+            <input type="hidden" name="sort" id="sort" value="@ViewBag.sort" />
+        </form><p>
+            Sort -
+            <a href="#" onclick="document.getElementById('sort').value=null; document.forms[0].submit(); return false;">by relevance</a>
+            <a href="#" onclick="document.getElementById('sort').value='OWNER'; document.forms[0].submit(); return false;">by Owner</a>
+            <a href="#" onclick="document.getElementById('sort').value='SITESUBURB'; document.forms[0].submit(); return false;">by Suburb</a>
+        </p>
+    </div>
+@if (Model != null)
+{<b>hi</b>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                
+
+                @foreach (var stateFacet in Model.Facets)
+                {
+                    <span>@stateFacet.Key</span>
+                    <ul>
+                        @foreach (var item in stateFacet.Value)
+                        {
+                        <li><a href="#" onclick="document.getElementById('q').value='@item.Value'; document.forms[0].submit(); return false;">@item.Value</a> (@item.Count)</li>
+                        }
+                    </ul>
+                }
+            </div>
+
+        </div>
+    </div>
+}
+else
+{ <b>no</b>}
+
+
+
+<div class="tabbable">
+    <!-- Only required for left/right tabs -->
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="#tab1" data-toggle="tab">Map</a></li>
+        <li><a href="#tab2" data-toggle="tab">List</a></li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane active" id="tab1">
+
+            <span id="totalResult"></span>
+            <div id="map" style="width: 500px; height: 400px;"></div>
+            
+        </div>
+        <div class="tab-pane" id="tab2">
+            <!--Columns - Search, sort, and paginate from JSON data
+    --http://js-tutorial.com/columns-search-sort-and-paginate-your-json-data-815-->
+            <script src="scripts/jquery.columns.min.js"></script>
+            <link rel="stylesheet" href="content/jquery.columns.clean.css">
+
+            <div id="columns"></div>
+            <script>
+                $(document).ready(function() {
+                    var json =locations.Results;
+                    $('#columns').columns({
+                        data:json,
+                        searchableFields: ['Name', 'OWNER', 'SITESUBURB'],
+                        schema:[
+                            {"header":"","key":"id",  "template":' '},
+                            {"header":"Site","key":"Name", "template":'<a href="./site/details/{{id}}">{{Name}}</a>'},
+                            {"header":"Brand","key":"OWNER"},
+                            {"header":"Suburb","key":"SITESUBURB"},
+                            {"header":"E10","key":"BioE10Unleaded"},
+                            {"header":"Unleaded 91","key":"Unleaded91"},
+                            {"header":"Unleaded 95","key":"PremiumUnleaded95"},
+                            {"header":"Unleaded 98","key":"PremiumUnleaded98"},
+                            {"header":"Diesel","key":"Diesel"},
+                            {"header":"LPG","key":"LPG"}
+                        ]
+                    });
+                });
+            </script>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    // Define your locations: HTML content for the info window, latitude, longitude
+    var locations =@Html.Raw(ViewBag.locationJson);
+
+    // Setup the different icons and shadows
+    var iconURLPrefix = 'http://maps.google.com/mapfiles/ms/icons/';
+
+    var icons = [
+      iconURLPrefix + 'red-dot.png',
+      iconURLPrefix + 'green-dot.png',
+      iconURLPrefix + 'blue-dot.png',
+      iconURLPrefix + 'orange-dot.png',
+      iconURLPrefix + 'purple-dot.png',
+      iconURLPrefix + 'pink-dot.png',
+      iconURLPrefix + 'yellow-dot.png'
+    ]
+    var iconsLength = icons.length;
+
+    var map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 10,
+        //center: new google.maps.LatLng(-37.92, 151.25),
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        mapTypeControl: false,
+        streetViewControl: false,
+        panControl: false,
+        zoomControlOptions: {
+            position: google.maps.ControlPosition.LEFT_BOTTOM
+        }
+    });
+
+    var infowindow = new google.maps.InfoWindow({
+        maxWidth: 160
+    });
+
+    var markers = new Array();
+
+    var iconCounter = 0;
+
+    $('#totalResult').text('Total: ' + locations.Results.length +' of '+ locations.Count);
+
+    // Add the markers and infowindows to the map
+    for (var i = 0; i < locations.Results.length; i++) {
+        var marker = new google.maps.Marker({
+            position: new google.maps.LatLng(locations.Results[i]['geometry']["coordinates"][1],locations.Results[i]['geometry']["coordinates"][0]),
+            map: map,
+            icon: icons[iconCounter]
+        });
+
+        markers.push(marker);
+
+        google.maps.event.addListener(marker, 'click', (function(marker, i) {
+            return function() {
+                infowindow.setContent("<a href=./site/details/"+locations.Results[i]["id"]+">"+locations.Results[i]["Name"]+"</a><br/><div><a href=./price/create/ULP/"+locations.Results[i]["id"]+">Unleaded91:</a> "+locations.Results[i]["Unleaded91"]+"</div>"+
+                                                           "<div><a href=./price/create/LPG/"+locations.Results[i]["id"]+">LPG:</a> "+locations.Results[i]["LPG"]+"</div>"+
+                                                           "<div><a href=./price/create/PULP98/"+locations.Results[i]["id"]+">PremiumUnleaded98:</a> "+locations.Results[i]["PremiumUnleaded98"]+"</div>");//name
+                infowindow.open(map, marker);
+            }
+        })(marker, i));
+
+        iconCounter++;
+        // We only have a limited number of possible icon colors, so we may have to restart the counter
+        if(iconCounter >= iconsLength) {
+            iconCounter = 0;
+        }
+    }
+
+    function autoCenter() {
+        //  Create a new viewpoint bound
+        var bounds = new google.maps.LatLngBounds();
+        //  Go through each...
+        for (var i = 0; i < markers.length; i++) {
+            bounds.extend(markers[i].position);
+        }
+        //  Fit these bounds to the map
+        map.fitBounds(bounds);
+    }
+    autoCenter();
+</script>
+
+<br /><br />
+
+
+

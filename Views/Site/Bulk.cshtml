@@ -1,0 +1,157 @@
+﻿@model IEnumerable<FGapp.Models.Site>
+
+@{
+    ViewBag.Title = "Bulk Insert";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function() {
+        $(document).on('click', '.dropdown-menu li a', function() {
+            $('#bulkfueltype').val($(this).html());
+        });
+    });
+</script>
+<h2>Bulk Insert</h2>
+@if (@ViewBag.ResultMessage != null)
+{
+    <div class="alert alert-info">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
+            ×
+        </button>
+        <span class="glyphicon glyphicon-info-sign"></span> <strong>Info Message</strong>
+        <hr class="message-inner-separator">
+        <p>
+            @ViewBag.ResultMessage
+        </p>
+    </div>
+}
+<!--http://bootsnipp.com/snippets/featured/real-estate-media-listings use this??-->
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-group">
+        @*@Html.LabelFor(model => model.BioE10Unleaded, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.BioE10Unleaded, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>*@
+        <div class="col-sm-2">
+            <input type="text" placeholder="Price" id="bulk-price" name="bulkPrice" class="form-control">
+        </div>
+            <div class="col-sm-2">
+                <div class="input-group">
+                    <input type="text" id="bulkfueltype" name="bulkfueltype"  class="form-control">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                            <span class="caret"></span>
+                        </button>
+                        <ul id="fuelTypelist" class="dropdown-menu">
+                            <li><a href="#">E10</a></li>
+                            <li><a href="#">ULP</a></li>
+                            <li><a href="#">PULP95</a></li>
+                            <li><a href="#">PULP98</a></li>
+                            <li><a href="#">DSL</a></li>
+                            <li><a href="#">LPG</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            @*<select id="bulkfueltype" name="bulkfueltype"  class="form-control">
+        <option value="selectType"> Please select </option>
+        <option value="E10">E10</option>
+        <option value="ULP">ULP</option>
+        <option value="PULP95">PULP95</option>
+        <option value="PULP98">PULP98</option>
+        <option value="DSL">DSL</option>
+        <option value="LPG">LPG</option>
+    </select>*@
+            @*<input type="text" placeholder="Unleaded91" id="bulk-Unleaded91" name="Unleaded91">
+            <input type="text" placeholder="PremiumUnleaded95" id="bulk-PremiumUnleaded95" name="PremiumUnleaded95">
+            <input type="text" placeholder="PremiumUnleaded98" id="bulk-PremiumUnleaded98" name="PremiumUnleaded98">
+            <input type="text" placeholder="Diesel" id="bulk-Diesel" name="Diesel">
+            <input type="text" placeholder="LPG" id="bulk-LPG" name="LPG">*@
+            <input type="submit" value="Bulk Insert" class="btn btn-default" />
+        </div>
+}
+@if (Model != null)
+{
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        @*<th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FeatureType)
+            </th>*@
+        <th>
+            @Html.DisplayNameFor(model => model.Owner)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.SiteAddress)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.SiteSuburb)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.State)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Postcode)
+        </th>
+        @*<th>
+                @Html.DisplayNameFor(model => model.Geometry)
+            </th>*@
+        @*<th>
+                @Html.DisplayNameFor(model => model.Published)
+            </th>*@
+        @*<th></th>*@
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @*@Html.DisplayFor(modelItem => item.Name)*@
+                <a target="_blank" href="~/Site/Details/@Html.Raw(item.Id)">@Html.Raw(item.Name)</a>
+            </td>
+            @*<td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FeatureType)
+                </td>*@
+            <td>
+                @Html.DisplayFor(modelItem => item.Owner)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SiteAddress)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SiteSuburb)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.State)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Postcode)
+            </td>
+            @*<td>
+                    @Html.DisplayFor(modelItem => item.Geometry)
+                </td>*@
+            @*<td>
+                    @Html.DisplayFor(modelItem => item.Published)
+                </td>*@
+            @*<td>
+                    @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
+                    @Html.ActionLink("Details", "Details", new { id=item.Id }) |
+                    @Html.ActionLink("Delete", "Delete", new { id=item.Id })
+                </td>*@
+        </tr>
+    }
+
+</table>
+}
